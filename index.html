@@ -4,54 +4,60 @@
   <meta charset="UTF-8">
   <title>malwar.exe</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
+      margin: 0;
       background: black;
-      color: #00ff66;
+      color: white;
       font-family: monospace;
+      height: 100vh;
+      width: 100vw;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
     }
 
     .container {
-      width: 400px;
+      width: 90vw;
+      max-width: 700px;
       text-align: center;
     }
 
     .title {
-      font-size: 20px;
-      margin-bottom: 10px;
+      font-size: 28px;
+      margin-bottom: 12px;
     }
 
     .time {
       font-size: 14px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .bar-bg {
       width: 100%;
-      height: 10px;
+      height: 6px;
       background: #111;
-      border: 1px solid #00ff66;
-      margin-bottom: 15px;
+      border: 1px solid white;
+      margin-bottom: 14px;
     }
 
     .bar-fill {
       height: 100%;
       width: 0%;
-      background: #00ff66;
-      transition: width 0.2s linear;
+      background: white;
+      transition: width 0.15s linear;
     }
 
     .console {
-      background: #050505;
-      border: 1px solid #00ff66;
-      height: 120px;
-      overflow-y: hidden;
-      padding: 8px;
+      width: 100%;
+      height: 160px;
+      border: 1px solid white;
+      padding: 6px;
       font-size: 12px;
+      overflow: hidden;
       text-align: left;
       white-space: pre-wrap;
     }
@@ -74,16 +80,16 @@
     const timeText = document.getElementById("time");
 
     const fakeLines = [
-      "Fetching payload...",
-      "Downloading core.dll",
-      "Bypassing firewall...",
-      "Extracting modules...",
-      "Installing hooks...",
+      "GET /payload.bin",
+      "Downloading kernel.sys",
+      "Writing sector 0x3F...",
+      "Mounting volume...",
+      "Unpacking modules...",
       "Injecting runtime...",
-      "Verifying checksum...",
-      "Writing registry keys...",
-      "Decrypting assets...",
-      "Finalizing setup..."
+      "Encrypting memory...",
+      "Bypassing sandbox...",
+      "Installing hooks...",
+      "Verifying checksum..."
     ];
 
     let seconds = 5;
@@ -91,9 +97,9 @@
 
     const consoleInterval = setInterval(() => {
       const line = fakeLines[Math.floor(Math.random() * fakeLines.length)];
-      consoleBox.textContent += "> " + line + "\n";
+      consoleBox.textContent += line + "\n";
       consoleBox.scrollTop = consoleBox.scrollHeight;
-    }, 300);
+    }, 80); // FAST
 
     const mainInterval = setInterval(() => {
       seconds--;
@@ -106,10 +112,9 @@
         clearInterval(consoleInterval);
         timeText.textContent = "Complete.";
         bar.style.width = "100%";
-
         setTimeout(() => {
-          window.location.href = "stage2.html"; // next page
-        }, 800);
+          window.location.href = "stage2.html";
+        }, 500);
       }
     }, 1000);
   </script>
