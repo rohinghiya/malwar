@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>malwar.exe</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: monospace;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+header {
+  padding: 12px 20px;
+  font-size: 20px;
+  font-weight: bold;
+  background: #050505;
+  border-bottom: 1px solid #222;
+  width: 100%;
+  text-align: center;
+}
+
+.messageBox {
+  margin-top: 80px;
+  background: #111;
+  border: 2px solid white;
+  border-radius: 6px;
+  padding: 18px 40px;
+  box-shadow: 0 0 12px rgba(255,255,255,0.2);
+  font-size: 22px;
+  min-width: 420px;
+  text-align: center;
+}
+
+.cursor {
+  display: inline-block;
+  width: 10px;
+  background: white;
+  margin-left: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,50%,100% { opacity:1; }
+  25%,75% { opacity:0; }
+}
+
+/* === Console Section === */
+
+.container {
+  margin-top: 30px;
+  width: 90vw;
+  max-width: 700px;
+  text-align: center;
+  display: none;
+}
+
+.time {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.bar-bg {
+  width: 100%;
+  height: 6px;
+  background: #111;
+  border: 1px solid white;
+  margin-bottom: 14px;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: white;
+  transition: width 0.12s linear;
+}
+
+.console {
+  width: 100%;
+  height: 170px;
+  border: 1px solid white;
+  padding: 6px;
+  font-size: 12px;
+  overflow: hidden;
+  text-align: left;
+  white-space: pre-wrap;
+}
+</style>
+</head>
+<body>
+
+<header>malwar.exe</header>
+
+<div class="messageBox">
+  <span id="text"></span><span class="cursor"></span>
+</div>
+
+<div class="container" id="consoleContainer">
+  <div class="time" id="time">Wiping traces in: 5s</div>
+  <div class="bar-bg">
+    <div class="bar-fill" id="bar"></div>
+  </div>
+  <div class="console" id="console"></div>
+</div>
+
+<script>
+/* ===== Typing Effect ===== */
+const message = "Thank you for playing MALWAR.";
+const textEl = document.getElementById("text");
+let i = 0;
+
+function typeText() {
+  if (i < message.length) {
+    textEl.textContent += message[i++];
+    setTimeout(typeText, 90);
+  } else {
+    setTimeout(startShutdown, 700);
+  }
+}
+
+typeText();
+
+/* ===== Fake Deletion Console ===== */
+const consoleBox = document.getElementById("console");
+const bar = document.getElementById("bar");
+const timeText = document.getElementById("time");
+const container = document.getElementById("consoleContainer");
+
+const fakeLines = [
+  "[DEL ] Removing temp cache blocks...",
+  "[FS  ] unlink ./user/session.dat",
+  "[MEM ] Zeroing heap segment 0x7ff29a...",
+  "[PROC] Terminating background threads",
+  "[NET ] Closing outbound sockets",
+  "[SYS ] Clearing environment variables",
+  "[HASH] Scrubbing forensic signatures",
+  "[OK  ] Trace erased"
+];
+
+function startShutdown() {
+  container.style.display = "block";
+
+  let seconds = 5;
+  let progress = 0;
+
+  const consoleInterval = setInterval(() => {
+    const line = fakeLines[Math.floor(Math.random() * fakeLines.length)];
+    consoleBox.textContent += line + "\n";
+    consoleBox.scrollTop = consoleBox.scrollHeight;
+  }, 70);
+
+  const mainInterval = setInterval(() => {
+    seconds--;
+    progress += 20;
+    bar.style.width = progress + "%";
+    timeText.textContent = `Wiping traces in: ${seconds}s`;
+
+    if (seconds <= 0) {
+      clearInterval(consoleInterval);
+      clearInterval(mainInterval);
+      timeText.textContent = "Complete.";
+      bar.style.width = "100%";
+
+      setTimeout(() => {
+        window.close();
+        document.body.innerHTML = "<div style='color:white;font-family:monospace;margin-top:40vh;text-align:center;'>Session terminated.</div>";
+      }, 600);
+    }
+  }, 1000);
+}
+</script>
+
+</body>
+</html>

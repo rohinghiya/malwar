@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>malwar.exe</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: monospace;
+      background: #0d0d0d;
+      color: #ffffff;
+    }
+    header {
+      padding: 12px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      background: #050505;
+      border-bottom: 1px solid #222;
+    }
+    .codesBox {
+      background: #111;
+      padding: 20px;
+      border-bottom: 2px solid #222;
+    }
+    .codesTitle {
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+    .codesSub {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+    .codeCard {
+      background: #0a0a0a;
+      border: 1px solid #ffffff;
+      padding: 12px;
+      text-align: center;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+      width: 220px;
+    }
+    .codeAmount {
+      color: #fff;
+      font-weight: bold;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .emailBox {
+      width: 640px;
+      max-width: 92%;
+      background: #000;
+      border: 2px solid #fff;
+      border-radius: 6px;
+      padding: 16px;
+      white-space: pre-wrap;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      min-height: 200px;
+    }
+    .buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .buttons button {
+      padding: 10px 20px;
+      background: #fff;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 120px;
+    }
+    .buttons button:hover {
+      opacity: 0.85;
+    }
+    .feedback {
+      margin-top: 12px;
+      height: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<header>malwar.exe</header>
+<div class="codesBox">
+  <div class="codesTitle">📧 Phish Farming</div>
+  <div class="codesSub">Send 20 safe emails to your client.</div>
+  <div class="codeCard">
+    <div class="codeAmount">Progress: <span id="score">0</span> / 20</div>
+  </div>
+</div>
+<div class="container">
+  <div class="emailBox" id="emailBox"></div>
+  <div class="buttons">
+    <button id="safeBtn">Safe</button>
+    <button id="scamBtn">Scam</button>
+  </div>
+  <div class="feedback" id="feedback"></div>
+</div>
+<script>
+  const emailBox = document.getElementById('emailBox');
+  const safeBtn = document.getElementById('safeBtn');
+  const scamBtn = document.getElementById('scamBtn');
+  const scoreDisplay = document.getElementById('score');
+  const feedback = document.getElementById('feedback');
+  let score = 0;
+  let currentIsSafe = true;
+  let gameOver = false;
+  const safeEmails = [
+`From: IT Operations <it.ops@northbridge.edu>
+Subject: MFA Rollout Schedule
+Hello,
+Multi-factor authentication will be enabled for staff accounts next Monday. Instructions will be posted on the intranet — no reply needed.
+IT Operations`,
+`From: Facilities Team <facilities@harpergroup.co.uk>
+Subject: Air Conditioning Maintenance
+Hi,
+Engineers will be testing air conditioning units on floors 3–5 tomorrow between 10am and 12pm.
+Facilities`,
+`From: Claire Evans <claire.evans@bromleycouncil.gov.uk>
+Subject: Room Booking Confirmation
+Good afternoon,
+This email confirms your meeting room booking for Thursday, 2pm–3pm, Conference Suite A.
+Kind regards,
+Claire`,
+`From: Finance Systems <fin.systems@eclipseconsulting.com>
+Subject: Purchase Order Approved
+Hello,
+Purchase Order PO-77419 has been approved and sent to the supplier.
+Finance Systems`,
+`From: University Library <library@sheffield.ac.uk>
+Subject: Book Return Reminder
+Dear Student,
+This is a reminder that one borrowed item is due tomorrow.
+University Library Services`,
+`From: Project Office <pmo@stonebridgeprojects.co.uk>
+Subject: Weekly Status Report Template
+Hi,
+Please use the attached template for this Friday’s project status update.
+Thanks,
+PMO`,
+`From: Payroll <payroll@oakridgehealth.org>
+Subject: Payslip Available
+Hello,
+Your monthly payslip is now available via the employee portal.
+Payroll Team`,
+`From: James Turner <j.turner@bluewave.media>
+Subject: Social Campaign Drafts
+Hi,
+I’ve uploaded the first drafts of the social campaign visuals for review.
+Thanks,
+James`,
+`From: Estates Office <estates@westfieldcollege.edu>
+Subject: Fire Alarm Testing Notice
+Good morning,
+Fire alarm testing will take place on Wednesday between 9am and 11am.
+Estates Office`,
+`From: Client Support <support@orbitnetworks.com>
+Subject: Support Ticket #90341 Closed
+Hello,
+Your recent support ticket has now been resolved. Let us know if you need anything further.
+Orbit Support`,
+`From: Research Office <research@kingsbridge.ac.uk>
+Subject: Ethics Approval Granted
+Dear Dr Patel,
+Your ethics application reference R-2026-114 has been approved.
+Research Office`,
+`From: Travel Desk <travel@auroraglobal.com>
+Subject: Hotel Booking Confirmed
+Hi,
+Your hotel reservation for the Berlin conference has been confirmed.
+Travel Team`,
+`From: Procurement Team <procurement@midlandhospitals.nhs.uk>
+Subject: Supplier Registration Completed
+Good afternoon,
+Supplier registration for Apex Medical Ltd has been completed successfully.
+Procurement`,
+`From: HR Systems <hr.systems@lakeshoreholdings.com>
+Subject: Emergency Contact Review
+Hello,
+Please review your emergency contact details during your next HR portal login.
+HR Systems`,
+`From: Sam Patel <sam.patel@ironcladengineering.co.uk>
+Subject: Site Visit Photos
+Hi,
+Photos from yesterday’s site inspection are now in the shared folder.
+Cheers,
+Sam`,
+`From: Events Team <events@newbridgechamber.org>
+Subject: Conference Registration Confirmed
+Dear Delegate,
+Your registration for the Newbridge Economic Forum is confirmed.
+Events Team`,
+`From: Finance Audit <audit@oakviewtrust.org>
+Subject: Audit Meeting Minutes
+Hello,
+Please find attached the minutes from last week’s audit committee meeting.
+Finance Audit`,
+`From: Operations Desk <ops@silverlinefreight.co.uk>
+Subject: Delivery Route Update
+Hi,
+Route 4B has been rerouted due to roadworks — see attached map.
+Ops Desk`,
+`From: Learning & Development <learning@harborcorp.com>
+Subject: Training Completion Certificate
+Congratulations,
+Your certificate for “Data Protection Essentials” is now available.
+L&D Team`,
+`From: Customer Success <success@pulsecrm.io>
+Subject: Quarterly Account Review
+Hi,
+Your Q2 account review summary is ready on your dashboard.
+Pulse CRM Team`,
+`From: IT Security <security@bramwellcollege.ac.uk>
+Subject: Phishing Simulation Results
+Hello,
+The results of last week’s phishing awareness exercise are now available internally.
+IT Security`,
+`From: Office Management <office@copperfieldlaw.co.uk>
+Subject: Stationery Delivery
+Hi,
+The stationery order placed last week has arrived and is in storage.
+Office Management`,
+`From: Engineering Leads <eng-leads@aethertech.io>
+Subject: Code Freeze Reminder
+Reminder that code freeze begins Friday at 18:00 ahead of the release window.
+Engineering`,
+`From: Marketing Ops <marketing.ops@equinoxretail.com>
+Subject: Campaign Asset Approval
+Hello,
+Campaign assets for the spring launch have been approved and scheduled.
+Marketing Ops`,
+`From: Student Services <student.services@northshorecollege.edu>
+Subject: Accommodation Application Received
+Dear Student,
+We have received your accommodation application and will respond shortly.
+Student Services`,
+`From: Vendor Relations <vendors@tritonmanufacturing.com>
+Subject: Contract Renewal Notice
+Good afternoon,
+Your supplier contract is due for renewal next month — we’ll be in touch with next steps.
+Vendor Relations`,
+`From: Quality Assurance <qa@mediviewlabs.co.uk>
+Subject: Lab Results Validation Completed
+Hello,
+Batch validation for samples 5582–5591 has been completed successfully.
+QA Team`,
+`From: Legal Affairs <legal@stratfordholdings.com>
+Subject: NDA Signed Confirmation
+Hi,
+This email confirms that the NDA with Horizon Partners has been signed by both parties.
+Legal Affairs`,
+`From: Alumni Office <alumni@westbridgeuniversity.ac.uk>
+Subject: Reunion Event Details
+Dear Alumni,
+Details for the 10-year reunion event have now been published on the alumni portal.
+Alumni Office`
+  ];
+  const scamEmails = [
+`From: HR Department <hr.team@gmail.com>
+Subject: Payroll Issue
+Hi,
+We couldn’t process your salary this month due to a system error. Please reply with your bank details to resolve this.
+HR Team`,
+`From: Microsoft Security <security@microsoft-alerts.co>
+Subject: Suspicious Login Attempt
+We blocked a sign-in attempt from Russia. Confirm your identity to restore access.`,
+`From: Royal Mail <tracking@royalmail-deliveries.info>
+Subject: Delivery Attempt Failed
+We attempted delivery today but were unable to complete it. Arrange redelivery using the link below.`,
+`From: Finance Director <finance.director@company-exec.com>
+Subject: URGENT — Confidential Transfer
+I’m in a board meeting and need you to process a £12,400 transfer immediately. Do not discuss this.
+Sent from my iPhone`,
+`From: Google Workspace <admin@workspace-security.co>
+Subject: Storage Quota Exceeded
+Your business email storage is full. Upgrade immediately to avoid suspension.`,
+`From: IT Admin <it.admin@company-support.net>
+Subject: VPN Certificate Expired
+Your VPN certificate expired today. Install the attached update to restore access.`,
+`From: HMRC <refunds@hmrc-taxrefunds.org>
+Subject: Outstanding Tax Refund
+You are eligible for a tax refund. Submit your details to receive payment.`,
+`From: Dropbox <no-reply@dropbox-fileshare.co>
+Subject: New Shared Document
+A document titled “Quarterly_Payments.xlsm” has been shared with you.`,
+`From: LinkedIn <notifications@linkedin-support.co>
+Subject: New Connection Message
+You received a new private message. View it now.`,
+`From: University Admin <admin@uni-services.com>
+Subject: Tuition Fee Overpayment
+You have overpaid tuition fees. Submit your bank details to process refund.`,
+`From: CEO Office <ceo.office@company-global.net>
+Subject: Quick favour
+Are you available? I need help with something sensitive. Reply ASAP.`,
+`From: Apple Support <support@appleid-verification.co>
+Subject: Apple ID Locked
+Your Apple ID has been locked due to unusual activity. Verify immediately.`,
+`From: Zoom Billing <billing@zoom-support.co>
+Subject: Payment Failed
+Your subscription payment failed. Update your billing information.`,
+`From: “Payroll” <payroll@company-accounts.org>
+Subject: Updated Salary Slip
+Please review the attached salary slip for this month.`,
+`From: Charity Relief <donations@ukdisasterfund.org>
+Subject: Emergency Appeal
+Donate now to help victims affected by the recent flooding disaster.`,
+`From: IT Services <helpdesk@company-gmail.com>
+Subject: Email Migration Notice
+We are migrating email servers today. Confirm your account to prevent data loss.`,
+`From: Bank Security <alerts@securebank-login.co>
+Subject: Account Restricted
+Unusual activity detected. Restore account access immediately.`,
+`From: NHS App <notifications@nhs-online.co>
+Subject: New Test Results
+Your recent test results are available. Log in to view.`,
+`From: Amazon Business <billing@amazon-orders.co>
+Subject: Invoice Overdue
+Your business account has an outstanding invoice. Review immediately.`,
+`From: Instagram Security <alerts@instagram-verification.co>
+Subject: Copyright Violation
+Your account may be suspended due to repeated copyright claims.`,
+`From: Student Finance <support@studentfinance-help.org.uk>
+Subject: Application Issue
+Your funding application cannot be processed until details are confirmed.`,
+`From: DVLA <refunds@dvla-taxrebate.co.uk>
+Subject: Vehicle Tax Refund
+You are owed a vehicle tax refund. Complete the form to receive payment.`,
+`From: Internal Audit <audit@company-compliance.net>
+Subject: Compliance Review Required
+Your department failed a compliance review. Access the attached report.`,
+`From: Meta Business <support@meta-business.co>
+Subject: Advertising Account Suspended
+Your ads account has been suspended due to suspicious payments.`,
+`From: Procurement Team <procurement@company-payments.org>
+Subject: Supplier Payment Issue
+A supplier payment failed. Review invoice immediately.`,
+`From: WhatsApp Support <support@whatsapp-secure.co>
+Subject: Account Registration Code
+Your WhatsApp registration code is 482991. Reply to confirm.`,
+`From: Office 365 <support@office365-secure.co>
+Subject: License Expiry
+Your Office license expires today. Renew immediately.`,
+`From: Parking Enforcement <appeals@parking-penalty.uk>
+Subject: Outstanding Penalty Notice
+You have an unpaid parking fine. View notice online.`,
+`From: Booking.com <alerts@booking-secure.co>
+Subject: Unusual Reservation Activity
+We detected unusual reservation activity on your account.`,
+`From: Energy Provider <billing@energy-support.co>
+Subject: Direct Debit Failure
+Your energy bill payment failed. Update your details to avoid disconnection.`
+  ];
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+  shuffle(safeEmails);
+  shuffle(scamEmails);
+  let safeIndex = 0;
+  let scamIndex = 0;
+  function loadNewEmail() {
+    if (gameOver) return;
+    const useSafe =
+      (Math.random() < 0.5 && safeIndex < safeEmails.length) ||
+      scamIndex >= scamEmails.length;
+    currentIsSafe = useSafe;
+    emailBox.textContent = useSafe
+      ? safeEmails[safeIndex++]
+      : scamEmails[scamIndex++];
+    feedback.textContent = '';
+  }
+  function handleChoice(choiceIsSafe) {
+    if (gameOver) return;
+    if (choiceIsSafe === currentIsSafe) {
+      score++;
+      feedback.textContent = 'Correct!';
+      feedback.style.color = 'lime';
+    } else {
+      score--;
+      feedback.textContent = 'Incorrect!';
+      feedback.style.color = 'red';
+    }
+    if (score < 0) score = 0;
+    scoreDisplay.textContent = score;
+    if (score >= 1) {
+      gameOver = true;
+      emailBox.textContent = '✅ You successfully filtered 20 safe emails!';
+      safeBtn.disabled = true;
+      scamBtn.disabled = true;
+      setTimeout(() => {
+        window.location.href = 'ty.html';
+      }, 2000);
+      return;
+    }
+    setTimeout(loadNewEmail, 700);
+  }
+  safeBtn.addEventListener('click', () => handleChoice(true));
+  scamBtn.addEventListener('click', () => handleChoice(false));
+  loadNewEmail();
+</script>
+</body>
+</html>

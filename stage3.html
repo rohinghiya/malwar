@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>malwar.exe</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: monospace;
+      background: #0d0d0d;
+      color: #ffffff;
+    }
+
+    header {
+      padding: 12px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      background: #050505;
+      border-bottom: 1px solid #222;
+    }
+
+    .codesBox {
+      background: #111;
+      padding: 20px;
+      border-bottom: 2px solid #222;
+    }
+
+    .codesTitle {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .codeCard {
+      background: #0a0a0a;
+      border: 1px solid #ffffff;
+      padding: 12px;
+      text-align: center;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+
+    .codeValue {
+      font-size: 15px;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .codeAmount {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(10, 30px);
+      grid-template-rows: repeat(10, 30px);
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .grid div {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #fff;
+      background-color: transparent;
+      cursor: pointer;
+    }
+
+    .grid div.yellow { background-color: yellow; }
+    .grid div.orange { background-color: orange; }
+    .grid div.red { background-color: red; }
+
+    .passwordSection {
+      display: none;
+      margin-top: 10px;
+      width: 300px;
+      position: relative;
+    }
+
+    .passwordInputWrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .passwordSection input {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 2px solid #ffffff;
+      color: #ffffff;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 14px;
+      z-index: 2;
+    }
+
+    .passwordPlaceholder {
+      position: absolute;
+      left: 12px;
+      color: grey;
+      font-family: monospace;
+      font-size: 14px;
+      pointer-events: none;
+      white-space: pre;
+      z-index: 1;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .passwordSection button {
+      margin-top: 6px;
+      padding: 10px;
+      width: 100%;
+      background: #fff;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .passwordSection button:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .balanceCard {
+      background: #0a0a0a;
+      border: 1px solid #ffffff;
+      padding: 12px;
+      text-align: center;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+      margin-bottom: 20px;
+      width: 220px;
+    }
+
+    .startButton {
+      padding: 10px 20px;
+      background: #ffffff;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .warning {
+      color: red;
+      font-weight: bold;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .gameOverMessage {
+      color: red;
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>malwar.exe</header>
+
+<div class="codesBox">
+  <div class="codesTitle">🔑 Password Changer</div>
+  <div class="codeCard">
+    <div class="codeValue">Click the colour squares to change the password</div>
+    <div class="codeAmount" id="balance">Remaining Balance: £10000</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="grid" id="grid"></div>
+  <button class="startButton" id="startBtn">Start</button>
+
+  <div class="passwordSection" id="passwordSection">
+    <div class="warning">Change the password in time or the hacker will steal £1000!</div>
+    <div class="passwordInputWrapper">
+      <input type="text" id="passwordInput">
+      <span class="passwordPlaceholder" id="passwordPlaceholder"></span>
+    </div>
+    <button id="changeBtn" disabled>Change Password</button>
+  </div>
+
+  <div class="gameOverMessage" id="gameOverMessage" style="display:none;">
+    The Hacker has stolen all your money.
+  </div>
+</div>
+
+<script>
+  const grid = document.getElementById('grid');
+  const startBtn = document.getElementById('startBtn');
+  const passwordSection = document.getElementById('passwordSection');
+  const passwordInput = document.getElementById('passwordInput');
+  const passwordPlaceholder = document.getElementById('passwordPlaceholder');
+  const changeBtn = document.getElementById('changeBtn');
+  const balanceDisplay = document.getElementById('balance');
+  const gameOverMessage = document.getElementById('gameOverMessage');
+
+  let balance = 10000;
+  const squares = [];
+  const squareTimers = {};
+  const activeSquares = new Set();
+
+  // Create grid squares
+  for (let i = 0; i < 100; i++) {
+    const div = document.createElement('div');
+    div.addEventListener('click', () => showPasswordSection(div));
+    grid.appendChild(div);
+    squares.push(div);
+  }
+
+  function randomPassword() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let pass = '';
+    for (let i = 0; i < 8; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+    return pass;
+  }
+
+  function showPasswordSection(square) {
+    if (!square.password) return;
+    passwordSection.style.display = 'block';
+    passwordInput.value = '';
+    passwordPlaceholder.textContent = square.password;
+    changeBtn.disabled = false;
+    passwordSection.currentSquare = square;
+  }
+
+  function hidePasswordSection() {
+    passwordSection.style.display = 'none';
+    passwordInput.value = '';
+    passwordPlaceholder.textContent = '';
+    passwordSection.currentSquare = null;
+    changeBtn.disabled = true;
+  }
+
+  function activateSquare() {
+    if (balance <= 0) return;
+
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * 100);
+    } while (activeSquares.has(squares[idx]));
+
+    const square = squares[idx];
+    square.password = randomPassword();
+    square.className = 'yellow';
+    activeSquares.add(square);
+
+    const stages = ['yellow', 'orange', 'red'];
+    let t = 0;
+
+    function nextStage() {
+      if (t < stages.length - 1) {
+        t++;
+        square.className = stages[t];
+        squareTimers[square] = setTimeout(nextStage, 5000);
+      } else {
+        // Failed to change password in time
+        balance -= 1000;
+        if (balance <= 0) {
+          balance = 0;
+          grid.style.display = 'none';
+          hidePasswordSection();
+          gameOverMessage.style.display = 'block';
+          setTimeout(() => {
+            window.location.href = 'stage4.html';
+          }, 5000);
+        }
+        balanceDisplay.textContent = 'Remaining Balance: £' + balance;
+        square.className = '';
+        activeSquares.delete(square);
+        if (passwordSection.currentSquare === square) hidePasswordSection();
+      }
+    }
+
+    squareTimers[square] = setTimeout(nextStage, 5000);
+  }
+
+  startBtn.addEventListener('click', () => {
+    startBtn.style.display = 'none';
+    activateSquare(); // first immediately
+    setInterval(activateSquare, 8500); // every 8.5s
+  });
+
+  changeBtn.addEventListener('click', () => {
+    const square = passwordSection.currentSquare;
+    if (!square) return;
+    if (passwordInput.value === square.password) {
+      clearTimeout(squareTimers[square]);
+      square.className = '';
+      activeSquares.delete(square);
+      hidePasswordSection();
+    }
+  });
+</script>
+
+</body>
+</html>
