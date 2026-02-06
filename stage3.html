@@ -271,7 +271,7 @@
         squareTimers[square] = setTimeout(nextStage, 5000);
       } else {
         // Failed to change password in time
-        balance -= 1000;
+        balance -= 2000;
         if (balance <= 0) {
           balance = 0;
           grid.style.display = 'none';
@@ -311,3 +311,4 @@
 
 </body>
 </html>
+
